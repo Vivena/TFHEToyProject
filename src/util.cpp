@@ -92,3 +92,12 @@ int encryptFile(FILE * cloud_data, TFheGateBootstrappingSecretKeySet* key){
   }
   return cmpt;
 }
+
+void printLWESample(const LweSample* answer,const uint16_t nb_bits,const TFheGateBootstrappingSecretKeySet* key){
+  int32_t int_answer = 0;
+    for (int i=0; i<nb_bits; i++) {
+        int ai = bootsSymDecrypt(&answer[i], key);
+        int_answer |= (ai<<i);
+    }
+    printf("%i\n",int_answer);
+}
