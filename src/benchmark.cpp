@@ -24,7 +24,8 @@ void benchmark(const LweSample* ciphertext3,const TFheGateBootstrappingCloudKeyS
 
   //we set a higher priority for this process in order to get less interferences
   //TODO: we should also set the CPU affinity, but it is OS specific
-  setpriority(PRIO_PROCESS, 0, -20);
+  pid_t pid = getpid();
+  setpriority(PRIO_PROCESS, pid, -20);
 
   printf("benchmarking:    0%%");
   fflush(stdout);
