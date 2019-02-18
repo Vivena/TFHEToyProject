@@ -2,7 +2,6 @@
 #include <tfhe/tfhe_io.h>
 #include <stdio.h>
 
-
 void compare_bit(LweSample* newDecision,LweSample* aGreater,const LweSample* a,const LweSample* b,const LweSample* decision,const TFheGateBootstrappingCloudKeySet* cloudKey) {
     LweSample* tmp=new_gate_bootstrapping_ciphertext(cloudKey->params);
 
@@ -12,6 +11,7 @@ void compare_bit(LweSample* newDecision,LweSample* aGreater,const LweSample* a,c
     bootsAND(newDecision, tmp, decision, cloudKey);
     bootsMUX(aGreater, tmp, aGreater, b, cloudKey);
 
+    //-----------------------------------clean----------------------------------
     delete_gate_bootstrapping_ciphertext(tmp);
 }
 
@@ -35,6 +35,7 @@ void isGreater(LweSample* result,const LweSample* a,const LweSample* b,const int
     bootsCONSTANT(tmps,0, cloudKey);
     compare(a,b,tmps,result,nb_bits,cloudKey);
 
+    //-----------------------------------clean----------------------------------
     delete_gate_bootstrapping_ciphertext(tmps);
 }
 
@@ -48,10 +49,17 @@ void fullAdder(LweSample* rez,LweSample* carry,const LweSample* a,const LweSampl
     halfAdder(&tmps[0],&tmps[1],a,b,cloudKey);
     halfAdder(rez,&tmps[0],c,&tmps[0],cloudKey);
     bootsOR(carry,&tmps[0],&tmps[1], cloudKey);
-    delete_gate_bootstrapping_ciphertext_array(2,tmps);
 
+    //-----------------------------------clean----------------------------------
+    delete_gate_bootstrapping_ciphertext_array(2,tmps);
 }
 
+//we will use the ripple carry adder as it has a shallow circuit, the time lost
+//by waiting for the carry is therefore compansated by the fact it uses fewer
+//gates.
+//a possible improvement might be using 2 threads for the halfadder (the time
+//spent evalutating the gate might be greater than the time necessary to launch
+//a thread).
 void rippleCarryAdder(LweSample* rez, const LweSample* a,const LweSample* b,const int nb_bits,const TFheGateBootstrappingCloudKeySet* cloudKey){
     LweSample* carry = new_gate_bootstrapping_ciphertext(cloudKey->params);
     bootsCONSTANT(carry,0, cloudKey);
@@ -61,5 +69,7 @@ void rippleCarryAdder(LweSample* rez, const LweSample* a,const LweSample* b,cons
     for (size_t i = 0; i < nb_bits; i++) {
         fullAdder(&rez[i],carry,&rez[i],&b[i],carry,cloudKey);
     }
+
+    //-----------------------------------clean----------------------------------
     delete_gate_bootstrapping_ciphertext(carry);
 }

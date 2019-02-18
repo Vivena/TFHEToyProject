@@ -29,7 +29,7 @@ void keyGen() {
   export_tfheGateBootstrappingCloudKeySet_toFile(cloud_key, &key->cloud);
   fclose(cloud_key);
 
-  //clean up all pointers
+  //-----------------------------------clean------------------------------------
   delete_gate_bootstrapping_secret_keyset(key);
   delete_gate_bootstrapping_parameters(params);
 }

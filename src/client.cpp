@@ -1,14 +1,11 @@
 #include <tfhe/tfhe.h>
 #include <tfhe/tfhe_io.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <sched.h>
-#include <chrono>
 #include <thread>
 #include "keyGestion.hpp"
 #include "answers.hpp"
 #include "util.hpp"
-#include "opsInEncrypt.hpp"
+#include "benchmark.hpp"
 
 #define _GNU_SOURCE
 #define TARGET_CCS_DIAG_CODE 122
@@ -50,11 +47,11 @@ int main(int argc, char const *argv[]) {
 
   //-----------------------------------test-------------------------------------
 
-  // if (!(cloud_data = fopen("cloud.data","wb"))) {
-  //   throw "Could not open the cloud.data file";
-  // }
-  // int nb_lines = encryptFile(cloud_data,key);
-  // fclose(cloud_data);
+  if (!(cloud_data = fopen("cloud.data","wb"))) {
+    throw "Could not open the cloud.data file";
+  }
+  int nb_lines = encryptFile(cloud_data,key);
+  fclose(cloud_data);
 
   if (!(cloud_data = fopen("cloud.data","rb"))) {
     throw "Could not open the cloud.data file";
@@ -70,7 +67,7 @@ int main(int argc, char const *argv[]) {
   LweSample* reponce2=new_gate_bootstrapping_ciphertext_array(32,cloudKey->params);
   LweSample* reponce3=new_gate_bootstrapping_ciphertext_array(32,cloudKey->params);
   LweSample* reponce4=new_gate_bootstrapping_ciphertext_array(32,cloudKey->params);
-  LweSample* reponce5=new_gate_bootstrapping_ciphertext_array(32,cloudKey->params);
+
   for (size_t i = 0; i < NB_BITS_TOTALCHARGES; i++) {
     bootsCONSTANT(&reponce1[i],0, cloudKey);
   }
@@ -83,49 +80,26 @@ int main(int argc, char const *argv[]) {
   for (size_t i = 0; i < 32; i++) {
     bootsCONSTANT(&reponce4[i],0, cloudKey);
   }
-  for (size_t i = 0; i < 32; i++) {
-    bootsCONSTANT(&reponce5[i],0, cloudKey);
-  }
+
 
 
   //for each lines of the data set
-  // for (size_t i = 0; i < nb_lines; i++) {
-  // //we get the data we need
-  //   for (int i=0; i<NB_BITS_CCSCODE; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &ccscode[i],params);
-  //   for (int i=0; i<NB_BITS_TOTALCHARGES; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCharges[i],params);
-  //   for (int i=0; i<NB_BITS_TOTALCOST; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCost[i], params);
+  for (size_t i = 0; i < nb_lines; i++) {
+  //we get the data we need
+    for (int i=0; i<NB_BITS_CCSCODE; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &ccscode[i],params);
+    for (int i=0; i<NB_BITS_TOTALCHARGES; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCharges[i],params);
+    for (int i=0; i<NB_BITS_TOTALCOST; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCost[i], params);
 
-  //   // question1(reponce1,ciphertext1,ccscode,totalCharges,NB_BITS_CCSCODE,NB_BITS_TOTALCHARGES,cloudKey);
-  //   // question2(reponce2,ciphertext3,totalCharges,32,cloudKey);
-  //   // question3(reponce3,ciphertext2,ciphertext3,totalCost,32,cloudKey);
+    question1(reponce1,ciphertext1,ccscode,totalCharges,NB_BITS_CCSCODE,NB_BITS_TOTALCHARGES,cloudKey);
+    question2(reponce2,ciphertext3,totalCharges,32,cloudKey);
+    question3(reponce3,ciphertext2,ciphertext3,totalCost,32,cloudKey);
 
-  // }
-
-  // question4(reponce4,ciphertext2,ciphertext3,32,NB_BITS_CCSCODE,NB_BITS_TOTALCHARGES,NB_BITS_TOTALCHARGES,10000,std::thread::hardware_concurrency(),cloudKey);
-
-
-  setpriority(PRIO_PROCESS, 0, -20);
-
-  int32_t cmp=0,res;
-  int64_t elapsed_seconds=0;
-  std::chrono::time_point<std::chrono::system_clock> start, end;
-  for (size_t i = 0; i < 1<<31; i++) {
-    cmp++;
-    start = std::chrono::system_clock::now();
-    rippleCarryAdder(reponce5,reponce5,ciphertext3,32,cloudKey);
-    end = std::chrono::system_clock::now();
-    elapsed_seconds+= std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-    int32_t int_answer = 0;
-      for (int i=0; i<32; i++) {
-          int ai = bootsSymDecrypt(&reponce5[i], key);
-          int_answer |= (ai<<i);
-      }
-    if (cmp!=int_answer) {
-      res=cmp;
-    }
-    printf("cmp: %i\n",cmp );
   }
-  printf("tmp: %lli\n",elapsed_seconds/10000 );
+
+  question4(reponce4,ciphertext2,ciphertext3,32,NB_BITS_CCSCODE,NB_BITS_TOTALCHARGES,NB_BITS_TOTALCHARGES,10000,std::thread::hardware_concurrency(),cloudKey);
+
+  benchmark(ciphertext3,cloudKey,key);
+
 
   fclose(cloud_data);
   //-----------------------------------clean------------------------------------
