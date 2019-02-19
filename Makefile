@@ -15,7 +15,7 @@ TARGET = test
 
 CPP = g++
 # compiling flags here
-CFLAGS = --std=c++11  -Wall
+CFLAGS = --std=c++11  -Wall -O3
 
 LINKER = g++ -o
 # linking flags here
