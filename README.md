@@ -6,8 +6,8 @@ TFHEToyProject is a toy project that uses the TFHE library.
 
 ## Prerequisites
 
-This project need the TFHE library in order to run.
-Please find the informations on how to install this library [here](https://tfhe.github.io/tfhe/installation.html).
+This project needs the TFHE library in order to run.
+Please find the information on how to install this library [here](https://tfhe.github.io/tfhe/installation.html).
 
 Please set the ```CMAKE_BUILD_TYPE``` to ```optim```
 
@@ -21,13 +21,13 @@ make
 
 # Running
 
-To run the program: ```./bin/test```followed by the options you want.
+To run the program: ```./bin/test``` followed by the options you want.
 For example:
 
 ```
 ./bin/test -e -1 #encrypt the .csv file and answer the question 1 of the test
 ```
-You can also separate it in multiple call to the program
+You can also separate it in multiple calls to the program
 
 ```
 ./bin/test -e #encrypt the .csv file
@@ -40,7 +40,7 @@ number of lines read during encryption if the -e option is used
 
 ## List of options
 
-option | result
+Option | result
 --- | ---
 -e | encrypt the .cvs file
 -b | benchmark the adder function
@@ -48,4 +48,34 @@ option | result
 -1 | answer question 1: Add all TotalCharges values where CCS Diagnosis Code = 122
 -2 | answer question 2: Count number of even values in TotalCharges
 -3 | answer question 3: Count number of TotalCost>10000.
--4 | answer question 4: Parallelize Question 3 using multi threading. 
+-4 | answer question 4: Parallelize Question 3 using multi threading.
+
+# Library assessment
+
+## Is there a limit on the number of TotalCharges values, which can be added correctly using the library?
+
+There might be a limit on the number of TotalCharges values we can add correctly.<br/>
+However, I was unable to reach it after more than 10000 iterations.
+
+
+## Running time for addition.
+
+Benchmark:
+ 10000 additions done in 24719413 milliseconds, for an average of 2471 milliseconds per addition.
+<br/>
+We can also use the fact that the creators of the library tell us that it can
+evaluate 76 gates per second per core.<br/>
+As we don't parallelize the evaluations of gates, and as there is a total of 5
+gates in the ripple carry adder, that leave us with 5*(number of bits) gates to evaluate
+for a theoretical running time of 5*(number of bits)/76 seconds.<br/>
+As we do the addition on 32 bits, it give us a theoretical running time of approximately
+2105 milliseconds.
+
+## How much does the ciphertext increase in length as compared to the plaintext value?
+
+Each lines in the set data are composed, in plaintext, of one uint16_t, and two uint32_t.
+This makes the line 80 bits.<br/>
+In the encrypted data set, a line takes 161280 bits. This mean that a line takes
+2016 time more memory space than the plaintext.<br/>
+The size also doesn't seem to change when we change the parameters for the key's bootstrapping,
+but further test is needed to be categoric.
