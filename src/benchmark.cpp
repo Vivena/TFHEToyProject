@@ -8,7 +8,7 @@
 
 //(as rippleCarryAdder take a few seconds each times on my computer, 1000
 //mesures are precise enougth)
-#define NUM_ITER 10
+#define NUM_ITER 10000
 
 
 //benchmark compute the average time it take for rippleCarryAdder to add 1 to a
@@ -49,6 +49,7 @@ void benchmark(const LweSample* ciphertext3,const TFheGateBootstrappingCloudKeyS
     if (cmp!=int_answer) {
       res=cmp;
     }
+    //display completion percentage
     if (cmp*100/NUM_ITER<10) {
       printf("\b\b%i%%",(cmp*100/NUM_ITER));
     }

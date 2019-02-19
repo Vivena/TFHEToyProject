@@ -75,6 +75,7 @@ int encryptFile(FILE * cloud_data, TFheGateBootstrappingSecretKeySet* key){
       //Write completion percentage (we use as assumption that there is 10000
       //lines in the CSV)
       cmpt++;
+      //display completion percentage
       if (cmpt/100<10) {
         printf("\b\b%i%%",(cmpt/100));
       }
@@ -82,7 +83,7 @@ int encryptFile(FILE * cloud_data, TFheGateBootstrappingSecretKeySet* key){
         printf("\b\b\b%i%%",(cmpt/100));
       }
       else
-        printf("\b\b\b\b%i%%",(cmpt/100));
+        printf("\b\b\b\bDONE");
       fflush(stdout);
     }
     printf("\n");

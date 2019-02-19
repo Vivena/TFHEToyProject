@@ -6,6 +6,7 @@
 void keyGen() {
   FILE* secret_key;
   FILE* cloud_key;
+  //we can also do an other version in order to not always use the same key
   const int minimum_lambda = 110;
   uint32_t seed[] = { 314, 1592, 657 };
 
