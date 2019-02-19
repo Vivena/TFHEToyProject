@@ -85,4 +85,4 @@ In the encrypted data set, a line takes 161280 bits. This means that a line take
 2016 time more memory space than the plaintext.
 
 The size also doesn't seem to change when we change the parameters for the key's bootstrapping,
-but further test is needed to be categoric.
+but further testing is needed to be categoric.
