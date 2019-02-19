@@ -69,8 +69,8 @@ As we don't parallelize the evaluations of gates, and as there is a total of 5
 gates in the ripple carry adder, that leave us with 5*(number of bits) gates to evaluate
 for a theoretical running time of 5*(number of bits)/76 seconds.<br/>
 As we do the addition on 32 bits, it give us a theoretical running time of approximately
-2105 milliseconds.<br/>
-The difference in running time can be explained in part with the fact that the ripple carry adder contains the carry as well as the copy of one of the added value inside the output value at the start. 
+2105 milliseconds. We might be able to reduce this running time to about 1263 milliseconds (unrealistic best case scenario but good enough approximation) by parallelizing the two gates of the half adder, as doing so decrease the depth of the circuit by two gates. <br/>
+The difference in running time can be explained in part with the fact that the ripple carry adder contains the carry as well as the copy of one of the added value inside the output value at the start.
 
 ## How much does the ciphertext increase in length as compared to the plaintext value?
 
