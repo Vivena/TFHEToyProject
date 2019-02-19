@@ -58,25 +58,31 @@ There might be a limit on the number of TotalCharges values we can add correctly
 However, I was unable to reach it after more than 10000 iterations.
 
 
-## Running time for addition.
+## Running time for an addition.
 
 Benchmark:
  10000 additions done in 24719413 milliseconds, for an average of 2471 milliseconds per addition.
-<br/>
+
+
 We can also use the fact that the creators of the library tell us that it can
-evaluate 76 gates per second per core.<br/>
+evaluate 76 gates per second per core.
+
 As we don't parallelize the evaluations of gates, and as there is a total of 5
-gates in the ripple carry adder, that leave us with 5*(number of bits) gates to evaluate
-for a theoretical running time of 5*(number of bits)/76 seconds.<br/>
-As we do the addition on 32 bits, it give us a theoretical running time of approximately
-2105 milliseconds. We might be able to reduce this running time to about 1263 milliseconds (unrealistic best case scenario but good enough approximation) by parallelizing the two gates of the half adder, as doing so decrease the depth of the circuit by two gates. <br/>
+gates in the ripple carry adder, that leaves us with 5*(number of bits) gates to evaluate
+for a theoretical running time of 5*(number of bits)/76 seconds.
+
+As we do the addition on 32 bits, it gives us a theoretical running time of approximately
+2105 milliseconds. We might be able to reduce this running time to about 1263 milliseconds (unrealistic best-case scenario but good enough approximation) by parallelizing the two gates of the half adder, as doing so decrease the depth of the circuit by two gates.
+
 The difference in running time can be explained in part with the fact that the ripple carry adder contains the carry as well as the copy of one of the added value inside the output value at the start.
 
 ## How much does the ciphertext increase in length as compared to the plaintext value?
 
-Each lines in the set data are composed, in plaintext, of one uint16_t, and two uint32_t.
-This makes the line 80 bits.<br/>
-In the encrypted data set, a line takes 161280 bits. This mean that a line takes
-2016 time more memory space than the plaintext.<br/>
+Each line in the set data is composed, in plaintext, of one uint16\_t, and two uint32\_t.
+This makes the line 80 bits.
+
+In the encrypted data set, a line takes 161280 bits. This means that a line takes
+2016 time more memory space than the plaintext.
+
 The size also doesn't seem to change when we change the parameters for the key's bootstrapping,
 but further test is needed to be categoric.
