@@ -2,6 +2,7 @@
 #include <tfhe/tfhe_io.h>
 #include <sched.h>
 #include <sys/types.h>
+#include <sys/resource.h>
 #include <unistd.h>
 #include <chrono>
 #include "opsInEncrypt.hpp"

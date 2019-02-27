@@ -159,6 +159,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   //lengthLine is the offset we will use to skip lines at the start of each
   //threads in order to get to the subset allocated to the thread
   lengthLine=ftell(cloud_data)-x;
+  printf("lengthLine: %li\n", lengthLine );
   fseek(cloud_data,0,SEEK_SET);
 
   //we launch the N-1 threads
