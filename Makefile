@@ -26,19 +26,28 @@ SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
 
+.SECONDEXPANSION:
+
 SOURCES := $(wildcard $(SRCDIR)/*.cpp)
 INCLUDES := $(wildcard $(SRCDIR)/*.hpp)
 OBJECTS := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 rm = rm -f
 
+%/.:
+		mkdir -p $(dir $@)
+		touch $@
 
-$(BINDIR)/$(TARGET): $(OBJECTS)
+.PRECIOUS: %/.
+
+$(BINDIR)/$(TARGET): $(OBJECTS) | $$(@D)/.
 	@$(LINKER) $@ $(OBJECTS) $(LFLAGS)
 	@echo "Linking complete!"
 
-$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp | $$(@D)/.
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled "$<" successfully!"
+
+
 
 .PHONEY: clean
 clean:
