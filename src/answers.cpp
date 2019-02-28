@@ -7,7 +7,7 @@
 #include "util.hpp"
 
 using namespace std;
-mutex mtx;
+mutex mtx,mtx2;
 
 //Resolution of the first question, if the ccscode is equal to 122, we change
 //the solution to solution+totalcharges
@@ -69,6 +69,10 @@ void question3(LweSample* reponce3,const LweSample* ciphertext2,const LweSample*
   delete_gate_bootstrapping_ciphertext(tmp1);
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
 //a version of question3 that uses mutex in order to be usable in a thread while
 //still updating the value of reponce4
 void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSample* ciphertext3,const int nb_bits_addition,const long int offsetGetCost,const long int lengthLine,const int nb_bits_totalCost,long int nb_lines,uint16_t nb_thread,const TFheGateBootstrappingCloudKeySet* cloudKey,const uint16_t num_thread,int* cmpt){
@@ -77,7 +81,13 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
 
   LweSample* tmp1=new_gate_bootstrapping_ciphertext(cloudKey->params);
   LweSample* tmp2=new_gate_bootstrapping_ciphertext_array(nb_bits_addition,cloudKey->params);
+  LweSample* tmp3=new_gate_bootstrapping_ciphertext_array(nb_bits_addition,cloudKey->params);
   LweSample* totalCost=new_gate_bootstrapping_ciphertext_array(nb_bits_totalCost,cloudKey->params);
+
+  //we set tmp3 to 0
+  for (size_t i = 0; i < nb_bits_addition; i++) {
+    bootsCONSTANT(&tmp3[i], 0, cloudKey);
+  }
 
   //each thread will open the cloud.data file in order to have his own position
   //indicator
@@ -91,7 +101,7 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
   offset= num_thread*(nb_lines/nb_thread)*(lengthLine);
   linesToRead=nb_lines/nb_thread;
     //if the rest of the division of the number of lines by the number of threads
-    //is not equal to 0, we add 1 line by thread (starting from thread 1 and
+    //is not equal to 0, we add 1 line by thread (starting at from thread 1 and
     //upward), util thoses extra lines are all distributed
   if (nb_lines%nb_thread!=0) {
     if (num_thread>(nb_lines%nb_thread)) {
@@ -102,7 +112,7 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
     }
   }
   fseek ( cloud_data , offset , SEEK_SET );
-  printf("thread %hu: %li lines to read starting line %li\n", num_thread,linesToRead, offset/(lengthLine) );
+  printf("thread %hu: %li lines to read starting at line %li\n", num_thread,linesToRead, offset/(lengthLine) );
 
   for (size_t i = 0; i < linesToRead; i++) {
     //note that I have prefered using multiple fseek in order to read less as
@@ -116,27 +126,31 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
     //10000
     isGreater(tmp1,totalCost,ciphertext2,32,cloudKey);
     //we have to take the lock here as reponce4 can be updated by other threads
-    mtx.lock();
-    rippleCarryAdder(tmp2,reponce4,ciphertext3,32,cloudKey);
+
+    rippleCarryAdder(tmp2,tmp3,ciphertext3,32,cloudKey);
     for (size_t i = 0; i < 32; i++) {
-      bootsMUX(&reponce4[i], tmp1, &tmp2[i], &reponce4[i],cloudKey);
+      bootsMUX(&tmp3[i], tmp1, &tmp2[i], &tmp3[i],cloudKey);
     }
+    mtx.lock();
     *cmpt=*cmpt+1;
     if (*cmpt*100/nb_lines<10) {
-      printf("\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%%",(*cmpt*100/nb_lines));
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%% ",(*cmpt*100/nb_lines));
     }
     else if (*cmpt*100/nb_lines<100) {
-      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%%",(*cmpt*100/nb_lines));
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%% ",(*cmpt*100/nb_lines));
     }
     else
-      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:DONE");
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:DONE\n");
     fflush(stdout);
     mtx.unlock();
   }
-
+  mtx2.lock();
+  rippleCarryAdder(reponce4,reponce4,tmp3,32,cloudKey);
+  mtx2.unlock();
   //-----------------------------------clean------------------------------------
   fclose(cloud_data);
   delete_gate_bootstrapping_ciphertext_array(nb_bits_totalCost,totalCost);
+  delete_gate_bootstrapping_ciphertext_array(nb_bits_addition, tmp3);
   delete_gate_bootstrapping_ciphertext_array(nb_bits_addition, tmp2);
   delete_gate_bootstrapping_ciphertext(tmp1);
 }
@@ -150,6 +164,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   thread* tarray = new thread[nb_thread - 1];
   LweSample* tmp1=new_gate_bootstrapping_ciphertext(cloudKey->params);
   LweSample* tmp2=new_gate_bootstrapping_ciphertext_array(nb_bits_addition,cloudKey->params);
+  LweSample* tmp3=new_gate_bootstrapping_ciphertext_array(nb_bits_addition,cloudKey->params);
   LweSample* totalCost=new_gate_bootstrapping_ciphertext_array(nb_bits_totalCost,cloudKey->params);
   cmpt=(int *)malloc(sizeof(int));
   *cmpt=0;
@@ -158,7 +173,13 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   if (!(cloud_data = fopen("cloud.data","rb"))) {
     throw "Could not open the cloud.data file";
   }
+
+  for (size_t i = 0; i < nb_bits_addition; i++) {
+    bootsCONSTANT(&tmp3[i], 0, cloudKey);
+  }
+
   x=ftell(cloud_data);
+
   //for the ccscode+totalcharges
   for (size_t i = 0; i < nb_bits_ccsCode+nb_bits_totalCharges; i++) {
     import_gate_bootstrapping_ciphertext_fromFile(cloud_data, tmp1, cloudKey->params);
@@ -183,7 +204,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   //code as in question3mutex
   long int offset= ( (nb_thread - 1)*((nb_lines/nb_thread)+(nb_lines%nb_thread)))*(lengthLine);
   long int linesToRead=nb_lines/nb_thread;
-  printf("main thread: %li lines to read starting line %li \n", linesToRead, offset/lengthLine);
+  printf("main thread: %li lines to read starting at line %li \n", linesToRead, offset/lengthLine);
   //we get to the begining of our subset
   fseek ( cloud_data , offset , SEEK_SET );
 
@@ -193,24 +214,27 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
     fseek ( cloud_data , offsetGetCost , SEEK_CUR	);
     for (int i=0; i<nb_bits_totalCost; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCost[i], cloudKey->params);
     isGreater(tmp1,totalCost,ciphertext2,32,cloudKey);
+    rippleCarryAdder(tmp2,tmp3,ciphertext3,32,cloudKey);
+    for (size_t i = 0; i < 32; i++) {
+      bootsMUX(&tmp3[i], tmp1, &tmp2[i], &tmp3[i],cloudKey);
+    }
 
     mtx.lock();
-    rippleCarryAdder(tmp2,reponce4,ciphertext3,32,cloudKey);
-    for (size_t i = 0; i < 32; i++) {
-      bootsMUX(&reponce4[i], tmp1, &tmp2[i], &reponce4[i],cloudKey);
-    }
     *cmpt=*cmpt+1;
     if (*cmpt*100/nb_lines<10) {
-      printf("\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%%",(*cmpt*100/nb_lines));
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%% ",(*cmpt*100/nb_lines));
     }
     else if (*cmpt*100/nb_lines<100) {
-      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%%",(*cmpt*100/nb_lines));
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%% ",(*cmpt*100/nb_lines));
     }
     else
-      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  DONE");
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  DONE\n");
     fflush(stdout);
     mtx.unlock();
   }
+  mtx2.lock();
+  rippleCarryAdder(reponce4,reponce4,tmp3,32,cloudKey);
+  mtx2.unlock();
 
   for (size_t i = 0; i < nb_thread - 1; i++) {
     tarray[i].join();
@@ -219,6 +243,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   //-----------------------------------clean------------------------------------
   delete [] tarray;
   delete_gate_bootstrapping_ciphertext_array(nb_bits_totalCost,totalCost);
+  delete_gate_bootstrapping_ciphertext_array(nb_bits_addition, tmp3);
   delete_gate_bootstrapping_ciphertext_array(nb_bits_addition, tmp2);
   delete_gate_bootstrapping_ciphertext(tmp1);
 }

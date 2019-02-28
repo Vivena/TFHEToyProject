@@ -8,6 +8,7 @@
 #include "answers.hpp"
 #include "util.hpp"
 #include "benchmark.hpp"
+#include "opsInEncrypt.hpp"
 
 #define _GNU_SOURCE
 #define TARGET_CCS_DIAG_CODE 122
@@ -68,8 +69,6 @@ int main(int argc, char** argv) {
   getCloudKey(&cloudKey);
   //if necessary, the params are inside the key
   const TFheGateBootstrappingParameterSet* params = key->params;
-
-
 
   //we encryt the constant values in order to use them later
   LweSample* ciphertext1 = new_gate_bootstrapping_ciphertext_array(NB_BITS_CCSCODE,params);
@@ -140,7 +139,7 @@ int main(int argc, char** argv) {
         else
           printf("\b\b\b\bDONE");
         fflush(stdout);
-        // //we get the data we need
+        //we get the data we need
         for (int i=0; i<NB_BITS_CCSCODE; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &ccscode[i],params);
         for (int i=0; i<NB_BITS_TOTALCHARGES; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCharges[i],params);
         for (int i=0; i<NB_BITS_TOTALCOST; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCost[i], params);
@@ -148,7 +147,7 @@ int main(int argc, char** argv) {
         if(flags&(1<<3))question1(reponce1,ciphertext1,ccscode,totalCharges,NB_BITS_CCSCODE,NB_BITS_TOTALCHARGES,cloudKey);
         if(flags&(1<<4))question2(reponce2,ciphertext3,totalCharges,32,cloudKey);
         if(flags&(1<<5))question3(reponce3,ciphertext2,ciphertext3,totalCost,32,cloudKey);
-        //
+
       }
     }
 
@@ -173,6 +172,9 @@ int main(int argc, char** argv) {
     //if we want to benchmark the adder function
     if(flags&(1<<1))benchmark(ciphertext3,cloudKey,key);
 
+
+
+
     fclose(cloud_data);
     delete_gate_bootstrapping_ciphertext_array(NB_BITS_CCSCODE, ccscode);
     delete_gate_bootstrapping_ciphertext_array(NB_BITS_TOTALCHARGES, totalCharges);
@@ -183,7 +185,8 @@ int main(int argc, char** argv) {
     delete_gate_bootstrapping_ciphertext_array(NB_BITS_TOTALCHARGES, reponce1);
   }
   //-----------------------------------clean------------------------------------
-  // //clean up all pointers
+
+  //clean up all pointers
   delete_gate_bootstrapping_ciphertext_array(32, ciphertext3);
   delete_gate_bootstrapping_ciphertext_array(NB_BITS_TOTALCOST, ciphertext2);
   delete_gate_bootstrapping_ciphertext_array(NB_BITS_CCSCODE, ciphertext1);

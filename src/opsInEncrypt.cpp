@@ -16,7 +16,7 @@ void compare_bit(LweSample* newDecision,LweSample* aGreater,const LweSample* a,c
 }
 
 void compare(const LweSample* a,const LweSample* b,LweSample* decision,LweSample* aGreater,const int nb_bits,const TFheGateBootstrappingCloudKeySet* cloudKey){
-    for (int i=nb_bits-1; i>=0; i--) {
+    for (int i=0; i<nb_bits; i++) {
         compare_bit(decision,aGreater,&a[i],&b[i],decision,cloudKey);
     }
 }
@@ -33,7 +33,7 @@ void isEqual(LweSample* result,const LweSample* a,const LweSample* b,const int n
 void isGreater(LweSample* result,const LweSample* a,const LweSample* b,const int nb_bits,const TFheGateBootstrappingCloudKeySet* cloudKey){
     LweSample* tmps = new_gate_bootstrapping_ciphertext(cloudKey->params);
     bootsCONSTANT(tmps,0, cloudKey);
-    compare(a,b,tmps,result,nb_bits,cloudKey);
+    compare(b,a,tmps,result,nb_bits,cloudKey);
 
     //-----------------------------------clean----------------------------------
     delete_gate_bootstrapping_ciphertext(tmps);
