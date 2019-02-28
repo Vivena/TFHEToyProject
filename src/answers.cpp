@@ -228,7 +228,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
       printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%% ",(*cmpt*100/nb_lines));
     }
     else
-      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  DONE\n");
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  DONE\n");
     fflush(stdout);
     mtx.unlock();
   }
