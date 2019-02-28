@@ -10,7 +10,6 @@
 #include "benchmark.hpp"
 #include "opsInEncrypt.hpp"
 
-#define _GNU_SOURCE
 #define TARGET_CCS_DIAG_CODE 122
 #define FLOOR_TOTALCOST 10000
 #define NB_BITS_CCSCODE 16
@@ -110,16 +109,16 @@ int main(int argc, char** argv) {
     LweSample* reponce3=new_gate_bootstrapping_ciphertext_array(32,cloudKey->params);
     LweSample* reponce4=new_gate_bootstrapping_ciphertext_array(32,cloudKey->params);
 
-    for (size_t i = 0; i < NB_BITS_TOTALCHARGES; i++) {
+    for (int i = 0; i < NB_BITS_TOTALCHARGES; i++) {
       bootsCONSTANT(&reponce1[i],0, cloudKey);
     }
-    for (size_t i = 0; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
       bootsCONSTANT(&reponce2[i],0, cloudKey);
     }
-    for (size_t i = 0; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
       bootsCONSTANT(&reponce3[i],0, cloudKey);
     }
-    for (size_t i = 0; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
       bootsCONSTANT(&reponce4[i],0, cloudKey);
     }
 
@@ -127,7 +126,7 @@ int main(int argc, char** argv) {
     if ((flags>>3)>0) {
       //for each lines of the data set
       printf("question 1-3:    0%%");
-      for (size_t i = 0; i < nb_lines; i++) {
+      for (int i = 0; i < nb_lines; i++) {
 
         cmpt++;
         if (cmpt*100/nb_lines<10) {

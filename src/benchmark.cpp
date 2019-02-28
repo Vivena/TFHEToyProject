@@ -4,8 +4,12 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <unistd.h>
+#include <inttypes.h>
 #include <chrono>
 #include "opsInEncrypt.hpp"
+
+
+#define  __STDC_FORMAT_MACRO
 
 //(as rippleCarryAdder take a few seconds each times on my computer, 1000
 //mesures are precise enougth)
@@ -61,8 +65,8 @@ void benchmark(const LweSample* ciphertext3,const TFheGateBootstrappingCloudKeyS
       printf("\b\b\b\bDONE\n");
     fflush(stdout);
   }
-  printf("     %i operations done in %lli milliseconds for an average",cmp,elapsed_seconds);
-  printf("of %lli milliseconds per operations. \n", elapsed_seconds/cmp);
+  printf("     %i operations done in %" PRIu64 " milliseconds for an average",cmp,elapsed_seconds);
+  printf("of %" PRIu64 " milliseconds per operations. \n", elapsed_seconds/cmp);
   if(res!=0)printf("There was an error in the computation starting the %ith operation.\n",res);
   else printf("     There was no error in the computation.\n" );
   delete_gate_bootstrapping_ciphertext_array(32, tmp);

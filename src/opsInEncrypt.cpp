@@ -63,10 +63,10 @@ void fullAdder(LweSample* rez,LweSample* carry,const LweSample* a,const LweSampl
 void rippleCarryAdder(LweSample* rez, const LweSample* a,const LweSample* b,const int nb_bits,const TFheGateBootstrappingCloudKeySet* cloudKey){
     LweSample* carry = new_gate_bootstrapping_ciphertext(cloudKey->params);
     bootsCONSTANT(carry,0, cloudKey);
-    for (size_t i = 0; i < nb_bits; i++) {
+    for (int i = 0; i < nb_bits; i++) {
         bootsCOPY(&rez[i], &a[i], cloudKey);
     }
-    for (size_t i = 0; i < nb_bits; i++) {
+    for (int i = 0; i < nb_bits; i++) {
         fullAdder(&rez[i],carry,&rez[i],&b[i],carry,cloudKey);
     }
 

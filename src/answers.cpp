@@ -22,7 +22,7 @@ void question1(LweSample* reponce1,const LweSample* ciphertext1,const LweSample*
   rippleCarryAdder(tmp2,reponce1,totalcharges,nb_bits_totalCharges,cloudKey);
   //we change the solution to the sum we've just computed iff the ccscode was
   //equal to 122
-  for (size_t i = 0; i < nb_bits_totalCharges; i++) {
+  for (int i = 0; i < nb_bits_totalCharges; i++) {
     bootsMUX(&reponce1[i], tmp1, &tmp2[i], &reponce1[i],cloudKey);
   }
 
@@ -40,7 +40,7 @@ void question2(LweSample* reponce2,const LweSample* ciphertext3,const LweSample*
   rippleCarryAdder(tmp,reponce2,ciphertext3,nb_bits_addition,cloudKey);
   //we change the solution to the sum we've just computed iff the least
   //significant bit of the totalcharges is equal to 0
-  for (size_t i = 0; i < nb_bits_addition; i++) {
+  for (int i = 0; i < nb_bits_addition; i++) {
     bootsMUX(&reponce2[i],&totalCharges[0],&reponce2[i],&tmp[i],cloudKey);
   }
 
@@ -60,7 +60,7 @@ void question3(LweSample* reponce3,const LweSample* ciphertext2,const LweSample*
   rippleCarryAdder(tmp2,reponce3,ciphertext3,32,cloudKey);
   //we change the solution to the sum we've just computed iff the totalCost was
   //greater than 10000
-  for (size_t i = 0; i < 32; i++) {
+  for (int i = 0; i < 32; i++) {
     bootsMUX(&reponce3[i], tmp1, &tmp2[i], &reponce3[i],cloudKey);
   }
 
@@ -85,7 +85,7 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
   LweSample* totalCost=new_gate_bootstrapping_ciphertext_array(nb_bits_totalCost,cloudKey->params);
 
   //we set tmp3 to 0
-  for (size_t i = 0; i < nb_bits_addition; i++) {
+  for (int i = 0; i < nb_bits_addition; i++) {
     bootsCONSTANT(&tmp3[i], 0, cloudKey);
   }
 
@@ -114,7 +114,7 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
   fseek ( cloud_data , offset , SEEK_SET );
   printf("thread %hu: %li lines to read starting at line %li\n", num_thread,linesToRead, offset/(lengthLine) );
 
-  for (size_t i = 0; i < linesToRead; i++) {
+  for (int i = 0; i < linesToRead; i++) {
     //note that I have prefered using multiple fseek in order to read less as
     //the size of the data we skip each iteration is quite large, and the use of
     //a buffer don't seem practicle to me as we have to use the
@@ -128,7 +128,7 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
     //we have to take the lock here as reponce4 can be updated by other threads
 
     rippleCarryAdder(tmp2,tmp3,ciphertext3,32,cloudKey);
-    for (size_t i = 0; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
       bootsMUX(&tmp3[i], tmp1, &tmp2[i], &tmp3[i],cloudKey);
     }
     mtx.lock();
@@ -174,20 +174,20 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
     throw "Could not open the cloud.data file";
   }
 
-  for (size_t i = 0; i < nb_bits_addition; i++) {
+  for (int i = 0; i < nb_bits_addition; i++) {
     bootsCONSTANT(&tmp3[i], 0, cloudKey);
   }
 
   x=ftell(cloud_data);
 
   //for the ccscode+totalcharges
-  for (size_t i = 0; i < nb_bits_ccsCode+nb_bits_totalCharges; i++) {
+  for (int i = 0; i < nb_bits_ccsCode+nb_bits_totalCharges; i++) {
     import_gate_bootstrapping_ciphertext_fromFile(cloud_data, tmp1, cloudKey->params);
   }
   //offsetGetCost is the offset we will use for each lines to get the totalcost
   offsetGetCost=ftell(cloud_data)-x;
   //for the line
-  for (size_t i = 0; i <nb_bits_totalCost; i++) {
+  for (int i = 0; i <nb_bits_totalCost; i++) {
     import_gate_bootstrapping_ciphertext_fromFile(cloud_data, tmp1, cloudKey->params);
   }
   //lengthLine is the offset we will use to skip lines at the start of each
@@ -196,7 +196,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   fseek(cloud_data,0,SEEK_SET);
 
   //we launch the N-1 threads
-  for (size_t i = 0; i < nb_thread - 1; i++) {
+  for (int i = 0; i < nb_thread - 1; i++) {
     tarray[i] = thread(question3mutex,reponce4,ciphertext2,ciphertext3,nb_bits_addition,offsetGetCost,lengthLine,nb_bits_totalCost,nb_lines,nb_thread,cloudKey,i,cmpt);
   }
 
@@ -209,13 +209,13 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   fseek ( cloud_data , offset , SEEK_SET );
 
   //we do our computation for each lines of our subset
-  for (size_t i = 0; i < linesToRead; i++) {
+  for (int i = 0; i < linesToRead; i++) {
 
     fseek ( cloud_data , offsetGetCost , SEEK_CUR	);
     for (int i=0; i<nb_bits_totalCost; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCost[i], cloudKey->params);
     isGreater(tmp1,totalCost,ciphertext2,32,cloudKey);
     rippleCarryAdder(tmp2,tmp3,ciphertext3,32,cloudKey);
-    for (size_t i = 0; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
       bootsMUX(&tmp3[i], tmp1, &tmp2[i], &tmp3[i],cloudKey);
     }
 
@@ -236,7 +236,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   rippleCarryAdder(reponce4,reponce4,tmp3,32,cloudKey);
   mtx2.unlock();
 
-  for (size_t i = 0; i < nb_thread - 1; i++) {
+  for (int i = 0; i < nb_thread - 1; i++) {
     tarray[i].join();
   }
 

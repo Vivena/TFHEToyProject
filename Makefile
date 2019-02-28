@@ -19,7 +19,7 @@ CFLAGS = --std=c++11  -Wall -O3
 
 LINKER = g++ -o
 # linking flags here
-LFLAGS = -ltfhe-spqlios-fma
+LFLAGS = -ltfhe-spqlios-fma -pthread
 
 # change these to set the proper directories where each files shoould be
 SRCDIR = src
