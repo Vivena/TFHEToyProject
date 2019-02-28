@@ -15,7 +15,7 @@
 //benchmark compute the average time it take for rippleCarryAdder to add 1 to a
 //LweSample.
 void benchmark(const LweSample* ciphertext3,const TFheGateBootstrappingCloudKeySet* cloudKey,const TFheGateBootstrappingSecretKeySet* key){
-  int32_t cmp=0,res,int_answer;
+  int32_t cmp=0,res=0,int_answer;
   int64_t elapsed_seconds=0;
   std::chrono::time_point<std::chrono::system_clock> start, end;
   LweSample* tmp=new_gate_bootstrapping_ciphertext_array(32,cloudKey->params);

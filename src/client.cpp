@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   //a simple arg parser
   extern char * optarg;
   int nb_lines = NB_LINES_DEFAULT;
-  int opt;
+  int opt,cmpt=0;
   uint8_t flags=0;
   extern char * optarg;
 
@@ -126,9 +126,20 @@ int main(int argc, char** argv) {
 
     //if we want to solve question 1,2 or 3, we do it in the same loop
     if ((flags>>3)>0) {
-      printf("sup 3\n" );
       //for each lines of the data set
+      printf("question 1-3:    0%%");
       for (size_t i = 0; i < nb_lines; i++) {
+
+        cmpt++;
+        if (cmpt*100/nb_lines<10) {
+          printf("\b\b%i%%",(cmpt*100/nb_lines));
+        }
+        else if (cmpt*100/nb_lines<100) {
+          printf("\b\b\b%i%%",(cmpt*100/nb_lines));
+        }
+        else
+          printf("\b\b\b\bDONE");
+        fflush(stdout);
         // //we get the data we need
         for (int i=0; i<NB_BITS_CCSCODE; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &ccscode[i],params);
         for (int i=0; i<NB_BITS_TOTALCHARGES; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &totalCharges[i],params);

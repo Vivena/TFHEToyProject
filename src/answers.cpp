@@ -71,7 +71,7 @@ void question3(LweSample* reponce3,const LweSample* ciphertext2,const LweSample*
 
 //a version of question3 that uses mutex in order to be usable in a thread while
 //still updating the value of reponce4
-void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSample* ciphertext3,const int nb_bits_addition,const long int offsetGetCost,const long int lengthLine,const int nb_bits_totalCost,long int nb_lines,uint16_t nb_thread,const TFheGateBootstrappingCloudKeySet* cloudKey,const uint16_t num_thread){
+void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSample* ciphertext3,const int nb_bits_addition,const long int offsetGetCost,const long int lengthLine,const int nb_bits_totalCost,long int nb_lines,uint16_t nb_thread,const TFheGateBootstrappingCloudKeySet* cloudKey,const uint16_t num_thread,int* cmpt){
   long int offset,linesToRead;
   FILE* cloud_data;
 
@@ -121,6 +121,16 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
     for (size_t i = 0; i < 32; i++) {
       bootsMUX(&reponce4[i], tmp1, &tmp2[i], &reponce4[i],cloudKey);
     }
+    *cmpt=*cmpt+1;
+    if (*cmpt*100/nb_lines<10) {
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%%",(*cmpt*100/nb_lines));
+    }
+    else if (*cmpt*100/nb_lines<100) {
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%%",(*cmpt*100/nb_lines));
+    }
+    else
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:DONE");
+    fflush(stdout);
     mtx.unlock();
   }
 
@@ -135,11 +145,14 @@ void question3mutex(LweSample* reponce4,const LweSample* ciphertext2,const LweSa
 //add 1 to the final answer while using threads
 void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample* ciphertext3,const int nb_bits_addition,const int nb_bits_ccsCode,const int nb_bits_totalCharges,const int nb_bits_totalCost,long int nb_lines,uint16_t nb_thread,const TFheGateBootstrappingCloudKeySet* cloudKey){
   long int x, offsetGetCost,lengthLine;
+  int* cmpt;
   FILE* cloud_data;
   thread* tarray = new thread[nb_thread - 1];
   LweSample* tmp1=new_gate_bootstrapping_ciphertext(cloudKey->params);
   LweSample* tmp2=new_gate_bootstrapping_ciphertext_array(nb_bits_addition,cloudKey->params);
   LweSample* totalCost=new_gate_bootstrapping_ciphertext_array(nb_bits_totalCost,cloudKey->params);
+  cmpt=(int *)malloc(sizeof(int));
+  *cmpt=0;
 
   //we get the length of ccscode+totalcharges as well as the length of a line
   if (!(cloud_data = fopen("cloud.data","rb"))) {
@@ -163,7 +176,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
 
   //we launch the N-1 threads
   for (size_t i = 0; i < nb_thread - 1; i++) {
-    tarray[i] = thread(question3mutex,reponce4,ciphertext2,ciphertext3,nb_bits_addition,offsetGetCost,lengthLine,nb_bits_totalCost,nb_lines,nb_thread,cloudKey,i);
+    tarray[i] = thread(question3mutex,reponce4,ciphertext2,ciphertext3,nb_bits_addition,offsetGetCost,lengthLine,nb_bits_totalCost,nb_lines,nb_thread,cloudKey,i,cmpt);
   }
 
   //the main thread will work on the last set of lines, it is basicaly the same
@@ -186,6 +199,16 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
     for (size_t i = 0; i < 32; i++) {
       bootsMUX(&reponce4[i], tmp1, &tmp2[i], &reponce4[i],cloudKey);
     }
+    *cmpt=*cmpt+1;
+    if (*cmpt*100/nb_lines<10) {
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%%",(*cmpt*100/nb_lines));
+    }
+    else if (*cmpt*100/nb_lines<100) {
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  %li%%",(*cmpt*100/nb_lines));
+    }
+    else
+      printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bquestion 4:  DONE");
+    fflush(stdout);
     mtx.unlock();
   }
 
