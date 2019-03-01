@@ -241,6 +241,7 @@ void question4(LweSample* reponce4,const LweSample* ciphertext2,const LweSample*
   }
 
   //-----------------------------------clean------------------------------------
+  free(cmpt);
   delete [] tarray;
   delete_gate_bootstrapping_ciphertext_array(nb_bits_totalCost,totalCost);
   delete_gate_bootstrapping_ciphertext_array(nb_bits_addition, tmp3);
